@@ -1,3 +1,3 @@
-<?php 
-	header("Location: erm/index.php");
+<?php 
+	header("Location: erm/index.php");
 ?>

@@ -1,6 +1,5 @@
 <?php 
 include '../public/includes/links.php'; 
-include 'modal.php';
 $reporttype = '0';
 ?>
 <body>
@@ -58,11 +57,44 @@ $reporttype = '0';
 			<div style="padding: 0% 2%;">
 				<form class="form" method="POST" style="color:#fff;padding-top: 10%;">
 					Enter the code that has been sent to your mobile no. for report verification:
-					<input class="form-control" style="width:100%;"><br>
-					<button class="btn btn-success" type="submit" style="float: right;">
+					<input class="form-control" name="vc" style="width:100%;"><br>
+					<button class="btn btn-success" name="verify" type="submit" style="float: right;">
 						VERIFY
 					</button>
+					
 				</form>
+				<?php
+					if(isset($_POST['verify'])){
+						$vc = strtoupper(mysqli_real_escape_string($conn, $_POST['vc']));
+						
+						$gvc = mysqli_query($conn, "SELECT verificationcode FROM tbl_report_verification WHERE verificationcode='$vc' AND status='0'");
+						if(mysqli_num_rows($gvc)>0){
+							$pvc = mysqli_query($conn, "UPDATE tbl_report_verification SET status='1' WHERE verificationcode='$vc'");
+
+							if($pvc){
+                                $grt = mysqli_query($conn, "SELECT reporttype,reportid FROM tbl_report_verification WHERE verificationcode='$vc'");
+                                while($rs=mysqli_fetch_assoc($grt)){
+                                    $rt = $rs['reporttype'];
+                                    $ri = $rs['reportid'];
+                                }
+
+                                if($rt=='1'){
+                                    $updr = mysqli_query($conn, "UPDATE tbl_crimes SET status='V' WHERE id='$ri'");
+                                }else if($rt=='2'){
+                                    $updr = mysqli_query($conn, "UPDATE tbl_complains SET status='V' WHERE id='$ri'");
+                                }else if($rt=='3'){
+                                    $updr = mysqli_query($conn, "UPDATE tbl_suggestions SET status='V' WHERE id='$ri'");
+                                }else if($rt=='4'){
+                                    $updr = mysqli_query($conn, "UPDATE tbl_concerns SET status='V' WHERE id='$ri'");
+                                }
+    
+                                $_SESSION['sysmsg'] = 'success';
+                            }
+						}else{
+							$_SESSION['sysmsg'] = 'error';
+						}
+					}
+				?>
 			</div>
 	
 			<div class="mt-4">
@@ -75,8 +107,6 @@ $reporttype = '0';
 	</div>
 </section>
 
-<?php modal(); ?>
-
 <!-- - - - - -end- - - - -  -->
   	<!-- - - - - -end- - - - -  -->  	
 </div>
@@ -86,3 +116,19 @@ $reporttype = '0';
 <?php include '../public/includes/loader.php'; ?>
 </body>
 <?php include '../public/includes/cores.php'; ?>
+
+<script type="text/javascript">
+	var alert = function(msg){
+		alertify.alert("EREPORTMO:",msg, function(){
+			alertify.message('OK');
+		});
+	}
+
+	<?php if ($_SESSION['sysmsg']=="success"): ?>
+		alert("Report Verified! <br>Our Police Personnel will act on this report immediately! Thank You!");
+	<?php else: ?>
+		alert("Verification Code doesn't exist");
+	<?php endif ?>
+</script>
+
+
