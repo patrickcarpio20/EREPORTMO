@@ -9,12 +9,13 @@ $sql = $conn->query("SELECT * FROM tbl_citizens WHERE contactno='$loginid' LIMIT
 if(($sql->num_rows)>0){
 	$result = $sql->fetch_assoc();
 
-	$_SESSION['uid'] = $result['id'];
-
+	$_SESSION['cid'] = $result['id'];
+	$_SESSION['sysmsg'] = "Login Successful!";
 	
 }else{
-
+	$_SESSION['sysmsg'] = "Login Failed!";
 }
 
+header("location:index.php");
 exit();
 ?>

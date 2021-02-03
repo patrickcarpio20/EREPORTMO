@@ -7,70 +7,42 @@ include_once('../public/includes/config.php');
 <html lang="en">
 
     <head>
-
         <title>E-Report Mo!</title>
-
         <meta name="keywords" content="" />
-
-		<meta name="description" content="" />
-
+        <meta name="description" content="" />
 <!--
-
 Urbanic Template
-
 https://templatemo.com/tm-395-urbanic
-
 -->
-
         <meta charset="UTF-8">
-
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
         <!--<link rel="shortcut icon" href="PUT YOUR FAVICON HERE">-->
-
         <link rel="icon" href="../public/images/e-logo.png" type="image/png">
-
         <!-- Google Web Font Embed -->
-
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,600,600italic,700,700italic,800,800italic' rel='stylesheet' type='text/css'>
-
         
-
         <!-- Bootstrap core CSS -->
-
         <link href="../public/css/bootstrap.css" rel='stylesheet' type='text/css'>
 
-
-
         <!-- Custom styles for this template -->
-
         <link href="../public/js/colorbox/colorbox.css"  rel='stylesheet' type='text/css'>
-
         <link href="../public/css/templatemo_style.css"  rel='stylesheet' type='text/css'>
-
         <link href="../public/css/pulse.css" rel='stylesheet' type='text/css'>
-
         <link href="../public/css/carousel.css" rel='stylesheet' type='text/css'>
         <link href="../public/css/login.css" rel='stylesheet' type='text/css'>
         <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="../public/css/alertify.css">
 
+        <link rel="stylesheet" href="../public/css/alertify.min.css">
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-
         <!--[if lt IE 9]>
-
           <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-
           <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-
         <![endif]-->
-
         <style type="text/css">
-
            a{
-
             color:#fff!important;
-
            }
            h2 {
                width: 100%; 
@@ -80,6 +52,7 @@ https://templatemo.com/tm-395-urbanic
                margin: 10px 0 20px; 
                color:#FF7600;
             } 
+
             h2 span { 
                 background:#fff; 
                 padding:0 10px; 
@@ -109,7 +82,12 @@ https://templatemo.com/tm-395-urbanic
             .text-black {
                 color: black;
             }
-
+            .ajs-modal{
+                z-index:99999999!important;
+            }
+            .ajs-header, .ajs-content{
+                font-size: 16px!important;
+            }
         </style>
 
         <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
@@ -140,7 +118,7 @@ https://templatemo.com/tm-395-urbanic
 
     <body>
         <?php
-        if(!isset($_SESSION['uid'])):
+        if(!isset($_SESSION['cid'])):
         ?>
         <div style="position:fixed;width: 100%;height: 100%;z-index: 10000;background-color: rgba(0, 0, 0, 0.9);display:flex;align-items: center;justify-content: center;">
             <center>
@@ -151,7 +129,7 @@ https://templatemo.com/tm-395-urbanic
                   
                   <div class="col-12" style="text-align: left;">
                       <label style="color:#fff;">Login ID <i>(contact number you used on registration)</i>:</label>
-                      <input type="text" class="form-control" name="loginid" maxlength="11" onkeypress="validate(event)">
+                      <input type="text" class="form-control" name="loginid" maxlength="11" onkeypress="return validate(event)">
                   </div>
                   <br>
                   <button type="submit" class="btn btn-primary" style="background-color: #FF7600;">Login</button>
@@ -160,10 +138,14 @@ https://templatemo.com/tm-395-urbanic
             </center>
         </div>
         <?php
+        else:
+        ?>
+        <span style="position: fixed;bottom:10px;right:30px;background-color: #fff;color:#FF7600;font-weight: 700;padding: 1px 5px;z-index: 1000;border-radius: 5px 5px!important;font-size: 16px;border:2px solid #EDB248;box-shadow: 5px 5px 5px #000;">&nbsp;WELCOME TO E-REPORT MO! YOUR SAFETY AND SECURITY IS OUR PRIORITY.</span>
+        <?php
         endif
         ?>
 
-        <span style="position: fixed;bottom:10px;right:30px;background-color: #fff;color:#FF7600;font-weight: 700;padding: 1px 5px;z-index: 1000;border-radius: 5px 5px!important;font-size: 16px;border:2px solid #EDB248;box-shadow: 5px 5px 5px #000;"><i class="fa fa-user"></i>&nbsp;WELCOME, JOSEPH ONG</span>
+        
 
 
         <div class="templatemo-top-bar" id="templatemo-top" style="background-color:#10395C!important;">
@@ -230,10 +212,10 @@ https://templatemo.com/tm-395-urbanic
 
                             <ul class="nav navbar-nav navbar-right" style="margin-top: 5px;">
 
-                                <li class="active"><a href="index.php">HOME</a></li>
+                                <!-- <li class="active"><a href="index.php">HOME</a></li>
 
-                                <li><a href="aboutus.php">ABOUT</a></li>
-
+                                <li><a href="aboutus.php">ABOUT</a></li> -->
+                                <li><a href="logout.php">LOGOUT</a></li>
                                 <!-- <li><a href="verifyreport.php">REPORT VERIFICATION</a></li> -->
 
                             </ul>
@@ -302,24 +284,18 @@ https://templatemo.com/tm-395-urbanic
                     </div>
                 </div>
                 <div class="row" style="margin-top: 12%;">
-                    <h2><span>EMERGENCY HOTLINES</span></h2>
-                    <span style="font-size: 14px;font-weight: 600;"><i>(Click any of these shown available hotlines below to make an emergency call)</i></span><br><br>
-                    <?php
-                    $hotlines = mysqli_query($conn, "SELECT * FROM tbl_hotline WHERE active='1'");
-                    foreach($hotlines as $hotline):
-                    ?>
-                    <div class="col-sm-2">
-                    <a href="tel:<?=$hotline['telno']?>">
-                    <button class="pulse-button" style="background-image: none!important;box-shadow: 0 0 0 0 rgba(0,180,30, 0.7);background-color: #33ff33;border-radius: 5px 5px!important;"><i class="fa fa-phone" style="font-size: 30px;color:#fff;"></i></button>
-                    </a>
-                    </div>
-                    <?php
-                    endforeach
-                    ?>
+                    <!-- <h2><span>EMERGENCY CALL</span></h2> -->
+                    <center><span style="font-size: 14px;font-weight: 600;"><i>(Click this button to iniate an emergency call)</i></span><br><br>
+                    
+                    <!-- <a href="tel:<?=$hotline['telno']?>"> -->
+                    <button class="pulse-button" onclick="checkRoom()" style="background-image: none!important;box-shadow: 0 0 0 0 rgba(180,0,0, 0.7);background-color: #B40000;border-radius: 5px 5px!important; border: #FFC600 10px solid;"><i class="fa fa-phone" style="font-size: 30px;color:#fff;"></i></button>
+                    <!-- </a> -->
+
+                    </center>
+                   
                 </div>
             </div>
         </div>
-
 
         <div class="templatemo-footer" style="background-color: #10395C;">
 
@@ -361,7 +337,75 @@ https://templatemo.com/tm-395-urbanic
 
         </div>
 
+        <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+        <script>
+            var userid = "<?=$_SESSION['cid']?>";
+            function checkRoom(){
+                $.ajax({
+                    type: "POST",
+                    url: "ajax-requests.php",
+                    dataType: "JSON",
+                    data: {
+                        req: "check-video-chat",
+                        userid: userid
+                    },
+                    success: function(data){
+                        if(data.result==1){
+                            initCall(data.room);
+                        }else{
+                            initCall(null);
+                        }
+                    }
+                });
+            }
 
+            function initCall(room){
+                var room = room;
+
+                if(room==null){
+                    console.log(null);
+                    fetch("https://api.daily.co/v1/rooms", {
+                      "method": "POST",
+                      "headers": {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer 6ef679ecefa79e3c74c8be3fbf0d7bb0867f5f01fd64ec000337eab0e4a986a3"
+                      },
+                      "body": "{\"properties\":{\"autojoin\":true,\"enable_chat\":true}}"
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                      room = result.name;
+
+                      $.ajax({
+                        type: "POST",
+                        url: "ajax-requests.php",
+                        dataType: "JSON",
+                        data: {
+                            req: "save-video-chat",
+                            userid: userid,
+                            room: room,
+                        },
+                        success: function(data){
+                            if(data.result==1){
+                                callFrame = window.DailyIframe.createFrame();
+                                callFrame.join({ url: 'https://ereportmo.daily.co/'+room });
+                            }
+                        }
+                      });
+
+                      
+                    })
+                    .catch(err => {
+                      console.error(err);
+                    });
+                }else{
+                    console.log(room);
+                    callFrame = window.DailyIframe.createFrame();
+                    callFrame.join({ url: 'https://ereportmo.daily.co/'+room });
+                }
+            }
+            
+        </script>
 
         
 
@@ -375,13 +419,25 @@ https://templatemo.com/tm-395-urbanic
 
         <script src="../public/js/templatemo_script.js"  type="text/javascript"></script>
 
-       
+        <script src="../public/js/alertify.min.js"></script>
 
 		<!-- templatemo 395 urbanic -->
 
     </body>
 
 </html>
+<?php 
+if(isset($_SESSION['sysmsg'])){
+?>
+<script type="text/javascript">
+    alertify.alert("EREPORTMO:","<?=$_SESSION['sysmsg']?>");
+</script>
+
+<?php
+unset($_SESSION['sysmsg']);
+}
+?>
+
 
 
 
